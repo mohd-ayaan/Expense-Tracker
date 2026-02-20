@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Expense Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat&family=Cinzel&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Tangerine&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Great+Vibes&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+    <style>
+        :root {
+            --bg: #fdf0d5;
+            --card-bg: #ffffff;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --danger: #dc2626;
+            --border: #e5e7eb;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --radius: 10px;
+            --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            padding: 24px;
+        }
+
+        .app-container {
+            max-width: 1100px;
+            margin: 0 auto 40px auto;
+        }
+
+        header {
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-shadow: 1.5px 1.5px 3px #398586;
+        }
+
+        header p {
+            font-family: 'Caveat', cursive;
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px 20px 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title-row h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-weight: 500;
+        }
+
+        /* Filter form */
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 14px;
+            font-size: 13px;
+        }
+
+        .filter-form select {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #f9fafb;
+            font-size: 13px;
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 999px;
+            padding: 6px 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: background 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            padding-inline: 10px;
+        }
+
+        .btn-ghost:hover {
+            background: #f3f4f6;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #ffffff;
+            padding-inline: 10px;
+        }
+
+        .btn-danger:hover {
+            filter: brightness(0.92);
+        }
+
+        /* Form layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 16px;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 13px;
+        }
+
+        .form-field label {
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-field input,
+        .form-field select {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            background-color: #f9fafb;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.18);
+        }
+
+        .error-text {
+            color: #dc2626;
+            font-size: 11px;
+        }
+
+        .form-actions {
+            margin-top: 8px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #f3f4f6;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eef0f4;
+        }
+
+        th {
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .table-actions form {
+            display: inline;
+        }
+
+        /* Totals card */
+        .totals-row {
+            margin-top: 8px;
+        }
+
+        .totals-amount {
+            font-weight: 600;
+        }
+
+        .link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+    body {
+        padding: 12px;
+    }
+
+    header h1 {
+        font-size: 22px;
+    }
+
+    .card {
+        padding: 16px 14px 12px 14px;
+    }
+
+    .filter-form {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    th, td {
+        padding: 6px 8px;
+    }
+
+    .table-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+    </style>
+</head>
+<body>
+<div class="app-container">
+
+    <header>
+        <h1>My Expenses</h1>
+        <p>Track your spending by category with a simple, clean dashboard.</p>
+    </header>
+
+    <div class="layout">
+
+        <!-- Left: Add + List -->
+        <div>
+
+            <!-- Add / Edit Expense -->
+            <div class="card">
+                <div class="card-title-row">
+                    <h2 th:text="${editMode} ? 'Edit Expense' : 'Add Expense'">Add Expense</h2>
+                </div>
+
+                <!-- Filter -->
+                <form class="filter-form" method="get" action="/expenses">
+                    <span>Filter by category:</span>
+                    <select name="category">
+                        <option value="" th:selected="${selectedCategory == null}">All</option>
+                        <option value="FOOD" th:selected="${selectedCategory == 'FOOD'}">FOOD</option>
+                        <option value="TRANSPORT" th:selected="${selectedCategory == 'TRANSPORT'}">TRANSPORT</option>
+                        <option value="ENTERTAINMENT" th:selected="${selectedCategory == 'ENTERTAINMENT'}">ENTERTAINMENT</option>
+                        <option value="BILLS" th:selected="${selectedCategory == 'BILLS'}">BILLS</option>
+                        <option value="OTHER" th:selected="${selectedCategory == 'OTHER'}">OTHER</option>
+                    </select>
+                    <button class="btn btn-ghost" type="submit">Apply</button>
+                    <a class="btn btn-ghost" href="/expenses">Reset</a>
+                </form>
+
+                <!-- Expense form -->
+                <form th:action="@{/expenses}" th:object="${expense}" method="post">
+
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label>Description</label>
+                            <input type="text" th:field="*{description}" placeholder="e.g. Coffee with friends">
+                            <span class="error-text"
+                                  th:if="${#fields.hasErrors('description')}"
+                                  th:errors="*{description}"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Amount</label>
+                            <input type="number" step="0.01" th:field="*{amount}"
+                                   placeholder="e.g. 150.00">
+                            <span class="error-text"
+                                  th:if="${#fields.hasErrors('amount')}"
+                                  th:errors="*{amount}"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Category</label>
+                            <select th:field="*{category}">
+                                <option value="FOOD">FOOD</option>
+                                <option value="TRANSPORT">TRANSPORT</option>
+                                <option value="ENTERTAINMENT">ENTERTAINMENT</option>
+                                <option value="BILLS">BILLS</option>
+                                <option value="OTHER">OTHER</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Date</label>
+                            <input type="date" th:field="*{date}">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary"
+                                th:text="${editMode} ? 'Update Expense' : 'Add Expense'">
+                            Add Expense
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Expenses table -->
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>All Expenses</h2>
+                </div>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th style="width:130px;">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="exp : ${expenses}">
+                        <td th:text="${exp.id}">1</td>
+                        <td th:text="${exp.description}">Sample</td>
+                        <td th:text="${exp.amount}">0.0</td>
+                        <td th:text="${exp.category}">FOOD</td>
+                        <td th:text="${exp.date}">2026-02-20</td>
+                        <td>
+                            <div class="table-actions">
+                                <a th:href="@{'/expenses/' + ${exp.id} + '/edit'}"
+                                   class="btn btn-ghost">Edit</a>
+                                <form th:action="@{'/expenses/' + ${exp.id} + '/delete'}"
+                                      method="post">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(expenses)}">
+                        <td colspan="6" style="text-align:center; color: var(--text-muted); padding: 16px;">
+                            No expenses found. Add your first one above.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Right: Totals -->
+        <div>
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Totals by Category</h2>
+                </div>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Total Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="entry : ${totals}">
+                        <td th:text="${entry.key}">FOOD</td>
+                        <td class="totals-amount" th:text="${entry.value}">0.0</td>
+                    </tr>
+                    <tr th:if="${#maps.isEmpty(totals)}">
+                        <td colspan="2" style="text-align:center; color: var(--text-muted); padding: 12px;">
+                            Totals will appear after you add expenses.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
