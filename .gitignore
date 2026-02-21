@@ -1,3 +1,23 @@
+# Maven
+/target/
+
+# IDE
+.idea/
+/.vscode/
+*.iml
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# Local-only overrides (if you create them)
+/src/main/resources/application-local-secrets.properties
+/src/main/resources/env.properties
+
+
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
