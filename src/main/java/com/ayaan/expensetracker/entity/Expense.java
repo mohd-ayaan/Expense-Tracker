@@ -2,8 +2,12 @@ package com.ayaan.expensetracker.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "expenses")
@@ -18,58 +22,50 @@ public class Expense {
     private String description;
 
     @DecimalMin("0.01")
-    private Double amount;
+    @Digits(integer = 10, fraction = 2)
+    private BigDecimal amount;
 
     private LocalDate date = LocalDate.now();
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
     private Category category;
 
-    public enum Category {
-        FOOD, TRANSPORT, ENTERTAINMENT, BILLS, OTHER
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public Expense() {
-    }
+    @Column(updatable = false)
+    @CreationTimestamp                  // ✅ replaces @Temporal + fully qualified annotation
+    private LocalDateTime createdAt;    // ✅ LocalDateTime instead of java.util.Date
 
-    // getters and setters (generate with IDE)
-    public Long getId() {
-        return id;
-    }
+    @UpdateTimestamp                    // ✅ replaces @Temporal + fully qualified annotation
+    private LocalDateTime updatedAt;    // ✅ LocalDateTime instead of java.util.Date
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Expense() {}
 
-    public String getDescription() {
-        return description;
-    }
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public Double getAmount() {
-        return amount;
-    }
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
-    }
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
 
-    public LocalDate getDate() {
-        return date;
-    }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
-    public Category getCategory() {
-        return category;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public void setCategory(Category category) {
-        this.category = category;
-    }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

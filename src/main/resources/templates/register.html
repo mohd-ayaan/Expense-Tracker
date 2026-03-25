@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Expense Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #fdf0d5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(15,23,42,0.1);
+            padding: 36px 32px;
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { font-size: 24px; font-weight: 700; margin-bottom: 6px; color: #111827; }
+        .subtitle { color: #6b7280; font-size: 13px; margin-bottom: 24px; }
+        .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+        .alert-error { background: #fee2e2; color: #dc2626; }
+        .alert-success { background: #dcfce7; color: #16a34a; }
+        .form-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; font-size: 13px; }
+        .form-field label { font-weight: 500; color: #374151; }
+        .form-field input {
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            font-size: 13px;
+            background: #f9fafb;
+            font-family: inherit;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .form-field input:focus {
+            outline: none;
+            border-color: #2563eb;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        .hint { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            margin-top: 4px;
+            transition: background 0.15s, transform 0.05s;
+        }
+        .btn-primary { background: #2563eb; color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+        .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .footer-link { text-align: center; margin-top: 18px; font-size: 13px; color: #6b7280; }
+        .footer-link a { color: #2563eb; text-decoration: none; font-weight: 500; }
+        .footer-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Create account </h2>
+    <p class="subtitle">Start tracking your expenses today</p>
+
+    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+    <form th:action="@{/register}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <div class="form-field">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Choose a username" required autofocus/>
+        </div>
+        <div class="form-field">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Choose a password" required/>
+            <span class="hint">At least 6 characters recommended</span>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Account</button>
+    </form>
+
+    <div class="footer-link">
+        Already have an account? <a th:href="@{/login}">Sign in</a>
+    </div>
+</div>
+</body>
+</html>

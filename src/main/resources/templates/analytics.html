@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Expense Analytics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #fdf0d5;
+            color: #111827;
+            padding: 24px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        header h1 { font-size: 26px; font-weight: 700; }
+        header p { color: #6b7280; font-size: 13px; margin-top: 2px; }
+        .nav-links { display: flex; gap: 10px; }
+        .btn {
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 999px;
+            padding: 7px 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            font-family: inherit;
+            transition: background 0.15s, transform 0.05s;
+        }
+        .btn-ghost {
+            background: #fff;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+        .btn-ghost:hover { background: #f3f4f6; }
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+        .btn-danger:hover { filter: brightness(0.92); }
+        .chart-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(15,23,42,0.08);
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+        .chart-card h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #374151;
+        }
+        .empty-state {
+            text-align: center;
+            color: #9ca3af;
+            padding: 40px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <div>
+            <h1>Analytics Dashboard</h1>
+            <p th:text="'Spending overview for ' + ${currentYear}">Spending overview</p>
+        </div>
+        <div class="nav-links">
+            <a th:href="@{/expenses}" class="btn btn-ghost">← Back to Expenses</a>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-danger">Sign out</button>
+            </form>
+        </div>
+    </header>
+
+    <!-- Monthly Line Chart -->
+    <div class="chart-card">
+        <h2>Monthly Expenses — <span th:text="${currentYear}"></span></h2>
+        <canvas id="monthlyChart" height="80"></canvas>
+    </div>
+
+    <!-- Category Bar Chart -->
+    <div class="chart-card">
+        <h2>Totals by Category</h2>
+        <div th:if="${#maps.isEmpty(categoryData)}" class="empty-state">
+            No expense data yet. Add some expenses to see category breakdown.
+        </div>
+        <canvas id="categoryChart" height="80" th:if="${!#maps.isEmpty(categoryData)}"></canvas>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var monthlyData = /*[[${monthlyData}]]*/ [];
+    var categoryData = /*[[${categoryData}]]*/ {};
+
+    var months = ["Jan","Feb","Mar","Apr","May","Jun",
+                  "Jul","Aug","Sep","Oct","Nov","Dec"];
+
+    // Monthly line chart
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Total Expenses (₹)',
+                data: monthlyData,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37,99,235,0.12)',
+                borderWidth: 2,
+                pointBackgroundColor: '#2563eb',
+                pointRadius: 4,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { font: { family: 'Poppins', size: 11 } }
+                },
+                x: {
+                    ticks: { font: { family: 'Poppins', size: 11 } }
+                }
+            }
+        }
+    });
+
+    // Category bar chart
+    var catKeys = Object.keys(categoryData);
+    var catVals = Object.values(categoryData);
+    var barColors = [
+    '#2563eb',  // Housing - blue
+    '#7c3aed',  // Bills - purple
+    '#16a34a',  // Food & Groceries - green
+    '#ea580c',  // Transport - orange
+    '#dc2626',  // Healthcare - red
+    '#0891b2',  // Education - cyan
+    '#db2777',  // Entertainment - pink
+    '#ca8a04',  // Savings & Investments - yellow
+    '#6b7280'   // Others - gray
+    ];
+
+    if (catKeys.length > 0) {
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'bar',
+            data: {
+                labels: catKeys,
+                datasets: [{
+                    label: 'Total (₹)',
+                    data: catVals,
+                    backgroundColor: barColors.slice(0, catKeys.length),
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { font: { family: 'Poppins', size: 11 } }
+                    },
+                    x: {
+                        ticks: { font: { family: 'Poppins', size: 11 } }
+                    }
+                }
+            }
+        });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>
